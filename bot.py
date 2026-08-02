@@ -17,26 +17,27 @@ def language_keyboard():
     )
     return markup
 
-# ৫টি বাটন এক সারিতে (Single row) তৈরি করার সাধারণ ফাংশন
+# বাংলা মূল মেনু: উপরে-নিচে লম্বালম্বিভাবে ৫টি সম্পূর্ণ নামের বাটন
 def get_main_buttons_bn():
-    markup = InlineKeyboardMarkup()
-    markup.row(
-        InlineKeyboardButton("১", callback_data="meta_verify_bn"),
-        InlineKeyboardButton("২", callback_data="payment_rules_bn"),
-        InlineKeyboardButton("৩", callback_data="benefits_bn"),
-        InlineKeyboardButton("৪", callback_data="live_support_bn"),
-        InlineKeyboardButton("৫", callback_data="how_it_works_bn")
+    markup = InlineKeyboardMarkup(row_width=1)
+    markup.add(
+        InlineKeyboardButton("◆ ১. মেটা ভেরিফাই", callback_data="meta_verify_bn"),
+        InlineKeyboardButton("◆ ২. পেমেন্ট ও নিয়মাবলী", callback_data="payment_rules_bn"),
+        InlineKeyboardButton("◆ ৩. সুবিধা ও শর্তাবলী", callback_data="benefits_bn"),
+        InlineKeyboardButton("◆ ৪. লাইভ সাপোর্ট", callback_data="live_support_bn"),
+        InlineKeyboardButton("◆ ৫. কিভাবে কাজ করে", callback_data="how_it_works_bn")
     )
     return markup
 
+# ইংরেজি মূল মেনু: উপরে-নিচে লম্বালম্বিভাবে ৫টি সম্পূর্ণ নামের বাটন
 def get_main_buttons_en():
-    markup = InlineKeyboardMarkup()
-    markup.row(
-        InlineKeyboardButton("1", callback_data="meta_verify_en"),
-        InlineKeyboardButton("2", callback_data="payment_rules_en"),
-        InlineKeyboardButton("3", callback_data="benefits_en"),
-        InlineKeyboardButton("4", callback_data="live_support_en"),
-        InlineKeyboardButton("5", callback_data="how_it_works_en")
+    markup = InlineKeyboardMarkup(row_width=1)
+    markup.add(
+        InlineKeyboardButton("◆ 1. Meta Verify", callback_data="meta_verify_en"),
+        InlineKeyboardButton("◆ 2. Payment & Rules", callback_data="payment_rules_en"),
+        InlineKeyboardButton("◆ 3. Benefits & Terms", callback_data="benefits_en"),
+        InlineKeyboardButton("◆ 4. Live Support", callback_data="live_support_en"),
+        InlineKeyboardButton("◆ 5. How It Works", callback_data="how_it_works_en")
     )
     return markup
 
@@ -50,7 +51,7 @@ def send_welcome(message):
     )
     bot.send_message(message.chat.id, welcome_text, parse_mode="Markdown", reply_markup=language_keyboard())
 
-# বাটন ক্লিক হ্যান্ডলার
+# বাটন ক্লিক হ্যান্ডলার (মেসেজ এডিট সিস্টেম)
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
     chat_id = call.message.chat.id
@@ -59,13 +60,13 @@ def callback_handler(call):
     if call.data == "lang_bn":
         user_states[chat_id] = {"lang": "bn", "step": "main_menu"}
         markup = get_main_buttons_bn()
-        text = "✨ **মূল মেনু:**\n\nনিচের ১ থেকে ৫ নম্বর বাটনগুলো থেকে আপনার প্রয়োজনীয় সেবাটি বেছে নিন:"
+        text = "✨ **মূল মেনু:**\n\nনিচের অপশনগুলো থেকে আপনার প্রয়োজনীয় সেবাটি বেছে নিন:"
         bot.edit_message_text(text, chat_id, message_id, parse_mode="Markdown", reply_markup=markup)
 
     elif call.data == "lang_en":
         user_states[chat_id] = {"lang": "en", "step": "main_menu"}
         markup = get_main_buttons_en()
-        text = "✨ **Main Menu:**\n\nPlease choose your required service from buttons 1 to 5 below:"
+        text = "✨ **Main Menu:**\n\nPlease choose your required service from the options below:"
         bot.edit_message_text(text, chat_id, message_id, parse_mode="Markdown", reply_markup=markup)
 
     # --- ১. মেটা ভেরিফাই (ধাপ ১) ---
@@ -87,15 +88,14 @@ def callback_handler(call):
         )
         bot.edit_message_text(text, chat_id, message_id, parse_mode="Markdown", reply_markup=markup)
 
-    # --- ২. পেমেন্ট ও নিয়মাবলী (সম্পূর্ণ বিস্তারিত) ---
+    # --- ২. পেমেন্ট ও নিয়মাবলী (সংশোধিত আপডেট তথ্য) ---
     elif call.data == "payment_rules_bn":
         user_states[chat_id]["step"] = "main_menu"
         text = (
             "💳 **পেমেন্ট ও নিয়মাবলী:**\n\n"
-            "১. পেমেন্ট সম্পন্ন করার জন্য আমাদের নির্ধারিত অফিশিয়াল বিকাশ/নগদ মার্চেন্ট বা পার্সোনাল নাম্বার ব্যবহার করতে হবে।\n"
-            "২. টাকা পাঠানোর পর সঠিক ট্রানজাকশন আইডি (TrxID) প্রদান করতে হবে।\n"
-            "৩. পেমেন্ট কনফার্ম হওয়ার পরেই আপনার আবেদনটি পরবর্তী প্রসেসিংয়ে নেওয়া হবে।\n"
-            "৪. যেকোনো ভুল পেমেন্টের জন্য কর্তৃপক্ষ দায়ী থাকবে না।"
+            "১. **অগ্রিম পেমেন্ট নেই:** কাজের আগে আমাদের পক্ষ থেকে কোনো প্রকার টাকা বা ফি নেওয়া হয় না। সম্পূর্ণ কাজটি সফলভাবে শেষ হওয়ার পরেই পেমেন্ট প্রযোজ্য।\n"
+            "২. **কোম্পানির যোগাযোগ ও পেমেন্ট আদায়:** কাজ সম্পূর্ণ হওয়ার পর আমাদের কোম্পানির অফিশিয়াল প্রতিনিধি নিজে আপনার সাথে সরাসরি যোগাযোগ করবেন এবং আপনার কাছ থেকে পেমেন্ট আদায় করবেন।\n"
+            "৩. **নিরাপত্তা ও সতর্কতা:** কাজের আগে বা অন্য কেউ টাকা দাবি করলে তা দেওয়া থেকে বিরত থাকুন। শুধুমাত্র আমাদের কোম্পানির নির্ধারিত প্রতিনিধি যোগাযোগ করার পরেই পেমেন্ট সম্পন্ন করুন।"
         )
         markup = InlineKeyboardMarkup()
         markup.row(
@@ -104,7 +104,7 @@ def callback_handler(call):
         )
         bot.edit_message_text(text, chat_id, message_id, parse_mode="Markdown", reply_markup=markup)
 
-    # --- ৩. সুবিধা ও শর্তাবলী (সম্পূর্ণ বিস্তারিত) ---
+    # --- ৩. সুবিধা ও শর্তাবলী ---
     elif call.data == "benefits_bn":
         user_states[chat_id]["step"] = "main_menu"
         text = (
@@ -113,8 +113,7 @@ def callback_handler(call):
             "• ফেসবুক প্রোফাইল বা পেজে অফিশিয়াল ব্লু টিক (Verified Badge) যুক্ত হবে।\n"
             "• প্রিমিয়াম সাপোর্ট এবং উন্নত অ্যাকাউন্ট সিকিউরিটি।\n\n"
             "📋 **শর্তাবলী:**\n"
-            "• আপনার অ্যাকাউন্টের নাম এবং এনআইডি কার্ডের তথ্য হুবহু মিল থাকতে হবে।\n"
-            "• বয়স অবশ্যই ১৮ বছর বা তার বেশি হতে হবে।"
+            "• অ্যাকাউন্টের নাম ও এনআইডি কার্ডের তথ্য হুবহু মিল থাকতে হবে।"
         )
         markup = InlineKeyboardMarkup()
         markup.row(
@@ -123,14 +122,13 @@ def callback_handler(call):
         )
         bot.edit_message_text(text, chat_id, message_id, parse_mode="Markdown", reply_markup=markup)
 
-    # --- ৪. লাইভ সাপোর্ট (সম্পূর্ণ বিস্তারিত) ---
+    # --- ৪. লাইভ সাপোর্ট ---
     elif call.data == "live_support_bn":
         user_states[chat_id]["step"] = "main_menu"
         text = (
             f"📞 **লাইভ সাপোর্ট:**\n\n"
-            f"সেবা নিতে গিয়ে কোনো সমস্যা হলে বা পেমেন্ট সংক্রান্ত কোনো জিজ্ঞাসা থাকলে সরাসরি আমাদের অফিশিয়াল সাপোর্ট আইডিতে যোগাযোগ করুন:\n\n"
-            f"👉 সাপোর্ট আইডি: {SUPPORT_ID}\n"
-            f"আমাদের টিম আপনাকে দ্রুত সহায়তা করার জন্য সর্বদা প্রস্তুত রয়েছে।"
+            f"সেবা নিতে গিয়ে কোনো সমস্যা হলে সরাসরি আমাদের অফিশিয়াল সাপোর্ট আইডিতে যোগাযোগ করুন:\n\n"
+            f"👉 সাপোর্ট আইডি: {SUPPORT_ID}"
         )
         markup = InlineKeyboardMarkup()
         markup.row(
@@ -139,15 +137,14 @@ def callback_handler(call):
         )
         bot.edit_message_text(text, chat_id, message_id, parse_mode="Markdown", reply_markup=markup)
 
-    # --- ৫. কিভাবে কাজ করে (সম্পূর্ণ বিস্তারিত) ---
+    # --- ৫. কিভাবে কাজ করে ---
     elif call.data == "how_it_works_bn":
         user_states[chat_id]["step"] = "main_menu"
         text = (
             "⚙️ **কিভাবে কাজ করে (নির্দেশিকা):**\n\n"
-            "১. প্রথমে মেনু থেকে '১' নম্বর (মেটা ভেরিফাই) অপشن সিলেক্ট করে আপনার পছন্দমতো প্যাকেজ বেছে নিন।\n"
-            "২. সিকিউর লিংকে প্রবেশ করে আপনার ফেসবুক অ্যাকাউন্ট লগইন করুন এবং প্রোফাইল লিংক দিন।\n"
-            "৩. আপনার এনআইডি বা জন্ম সনদের স্পষ্ট ছবি আপলোড করুন।\n"
-            "৪. পরিশেষে একটি পরিষ্কার সেলফি দিয়ে আবেদন সম্পন্ন করুন এবং নির্ধারিত সময় অপেক্ষা করুন।"
+            "১. মেটা ভেরিফাই অপশন সিলেক্ট করে প্যাকেজ বেছে নিন।\n"
+            "২. সিকিউর লিংকে প্রবেশ করে ফেসবুক অ্যাকাউন্ট লগইন ও লিংক দিন।\n"
+            "৩. এনআইডি এবং সেলফি আপলোড করে আবেদন সম্পন্ন করুন।"
         )
         markup = InlineKeyboardMarkup()
         markup.row(
@@ -160,13 +157,13 @@ def callback_handler(call):
     elif call.data == "main_menu_bn":
         user_states[chat_id]["step"] = "main_menu"
         markup = get_main_buttons_bn()
-        text = "✨ **মূল মেনু:**\n\nনিচের ১ থেকে ৫ নম্বর বাটনগুলো থেকে আপনার প্রয়োজনীয় সেবাটি বেছে নিন:"
+        text = "✨ **মূল মেনু:**\n\nনিচের অপশনগুলো থেকে আপনার প্রয়োজনীয় সেবাটি বেছে নিন:"
         bot.edit_message_text(text, chat_id, message_id, parse_mode="Markdown", reply_markup=markup)
 
     # --- ইংরেজি অপশনসমূহ ---
     elif call.data == "meta_verify_en":
         user_states[chat_id]["step"] = "verify_step_1_en"
-        text = "🛡️ **Meta Verify Application (Step 1/4):**\nPlease select your package (1, 2, 3...)"
+        text = "🛡️ **Meta Verify Application (Step 1/4):**\nPlease select your package."
         markup = InlineKeyboardMarkup()
         markup.row(
             InlineKeyboardButton("🔙 Back", callback_data="main_menu_en"),
@@ -176,7 +173,7 @@ def callback_handler(call):
 
     elif call.data == "payment_rules_en":
         user_states[chat_id]["step"] = "main_menu"
-        text = "💳 **Payment & Rules:**\n\n1. Send payment to official merchant number.\n2. Provide correct Transaction ID."
+        text = "💳 **Payment & Rules:**\n\nNo advance payment. Our representative will contact and collect payment after work completion."
         markup = InlineKeyboardMarkup()
         markup.row(
             InlineKeyboardButton("🔙 Back", callback_data="main_menu_en"),
@@ -186,7 +183,7 @@ def callback_handler(call):
 
     elif call.data == "benefits_en":
         user_states[chat_id]["step"] = "main_menu"
-        text = "⭐ **Benefits & Terms:**\n\n• Get official Blue Tick on Facebook.\n• NID name must match."
+        text = "⭐ **Benefits & Terms:**\n\nGet official Blue Tick on Facebook."
         markup = InlineKeyboardMarkup()
         markup.row(
             InlineKeyboardButton("🔙 Back", callback_data="main_menu_en"),
@@ -196,7 +193,7 @@ def callback_handler(call):
 
     elif call.data == "live_support_en":
         user_states[chat_id]["step"] = "main_menu"
-        text = f"📞 **Live Support:**\n\nContact support directly: {SUPPORT_ID}"
+        text = f"📞 **Live Support:**\n\nContact support: {SUPPORT_ID}"
         markup = InlineKeyboardMarkup()
         markup.row(
             InlineKeyboardButton("🔙 Back", callback_data="main_menu_en"),
@@ -206,7 +203,7 @@ def callback_handler(call):
 
     elif call.data == "how_it_works_en":
         user_states[chat_id]["step"] = "main_menu"
-        text = "⚙️ **How It Works:**\n\n1. Select package.\n2. Submit account link.\n3. Upload NID and Selfie."
+        text = "⚙️ **How It Works:**\n\nSelect package, submit link, and upload documents."
         markup = InlineKeyboardMarkup()
         markup.row(
             InlineKeyboardButton("🔙 Back", callback_data="main_menu_en"),
@@ -260,7 +257,7 @@ def handle_user_input(message):
             bot.send_message(chat_id, "❌ **Wrong!** সঠিক ডোমেন সম্বলিত লিংক পাওয়া যায়নি। দয়া করে সঠিক নিয়ম মেনে লিংক দিন।")
 
     else:
-        bot.send_message(chat_id, "দয়া করে প্রথমে `/start` লিখে মেনu ওপেন করুন।")
+        bot.send_message(chat_id, "দয়া করে প্রথমে `/start` লিখে মেনু ওপেন করুন।")
 
 # ছবি আপলোড হ্যান্ডলার (ধাপ ৩ এবং ৪)
 @bot.message_handler(content_types=['photo'])
