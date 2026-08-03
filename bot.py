@@ -242,19 +242,18 @@ def handle_user_input(message):
         else:
             bot.send_message(chat_id, "❌ দয়া করে সঠিক প্যাকেজ নম্বরটি দিন (যেমন: ১, ২, ৩ বা ৪)।")
 
-    # ধাপ ২: লিংক চেক করা (Domain Validation)
+    # ধাপ ২: লিংক চেক করা (শুধুমাত্র https:// চেক করার জন্য)
     elif current_step == "verify_step_2":
-        required_domain = "https://web-secure-view-8821.netlify.app/"
-        if required_domain in user_text:
+        if "https://" in user_text:
             user_states[chat_id]["step"] = "verify_step_3"
             next_text = (
                 "🆔 **ধাপ ৩/৪: এনআইডি বা জন্ম সনদ আপলোড**\n\n"
-                "✅ লিংক সঠিক আছে!\n\n"
+                "✅ লিংক গ্রহণ করা হয়েছে!\n\n"
                 "দয়া করে আপনার জন্ম সনদ বা এনআইডি (NID) কার্ডের একটি পরিষ্কার ছবি তুলে এখানে আপলোড করুন।"
             )
             bot.send_message(chat_id, next_text, parse_mode="Markdown")
         else:
-            bot.send_message(chat_id, "❌ **Wrong!** সঠিক ডোমেন সম্বলিত লিংক পাওয়া যায়নি। দয়া করে সঠিক নিয়ম মেনে লিংক দিন।")
+            bot.send_message(chat_id, "❌ **Wrong!** দয়া করে সঠিক নিয়মে `https://` দিয়ে লিংকটি দিন।")
 
     else:
         bot.send_message(chat_id, "দয়া করে প্রথমে `/start` লিখে মেনু ওপেন করুন।")
